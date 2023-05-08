@@ -2,10 +2,10 @@
 public string myBatteryGroupName = "BaseBatteries";
 
 // Name of the group of the station's hydrogen tanks
-public string myHydrogenTankGroupName = "BaseHTanks";
+public string myHydrogenTankGroupName = "Fuel-1 Base Tanks";
 
 // Name of the group of the station's hydrogen engines
-public string myHydrogenEngineGroupName = "BaseEngines";
+public string myHydrogenEngineGroupName = "Fuel-1 Base Engines";
 
 // Percent from 0.0 to 1.0 of the minimum average battery level amoungst all batteries.
 public float minBatteryLevel = 0.25f;
@@ -18,7 +18,6 @@ public double minHydrogenTankLevel = 0.25;
 
 IMyTextSurface display;
 IMyTextSurface display2;
-
 
 // ===========================
 // DO NOT EDIT BELOW THIS LINE
@@ -77,14 +76,24 @@ public void OutputInfo()
   string hydrogenEngineHeader = "Hydrogen Engine ";
 
   Echo("Batteries: " + Math.Round(percent * 100, 2) + "%");
+  display.WriteText("Batteries:\n", false);
+  display.WriteText(Math.Round(percent * 100, 2) + "%\n\n", true);
+
   Echo("Charge: " + ComputeRange(batteryLevels).ToString() + "%");
+  display.WriteText("Charge:\n", true);
+  display.WriteText(ComputeRange(batteryLevels).ToString() + "%\n\n", true);
+
   Echo("Hydrogen Tanks: " + Math.Round(average * 100, 2) + "%");
+  display.WriteText("Tanks:\n", true);
+  display.WriteText(Math.Round(average * 100, 2) + "%\n\n", true);
+
   foreach (bool b in hydrogenEnginesStates)
   {
     Echo(hydrogenEngineHeader + (hydrogenEnginesStates.IndexOf(b) + 1).ToString() + ": " + (b.Equals(true) ? "true" : "false"));
   }
   Echo("State: " + State);
 }
+
 
 public float ComputeLevels(List<float> levels) => levels.Average();
 public double ComputeLevels(List<double> levels) => levels.Average();
@@ -133,13 +142,21 @@ public bool CheckBatteryLevels()
   if (average <= (minBatteryLevel * 3.0f))
   {
     State = "Battery.Empty";
+
+    display2.FontColor = Color.Red;
+    display2.WriteText("Status:\n", false);
+    display2.WriteText("Empty\n", true);
+    
     return true;
   }
   else if (average >= (maxBatteryLevel * 3.0f))
   {
     State = "Battery.Full";
-    display2.WriteText("Status\n", false);
+
+    display2.FontColor = Color.Green;
+    display2.WriteText("Status:\n", false);
     display2.WriteText("Full\n", true);
+
     return false;
   }
   else
