@@ -1,0 +1,70 @@
+const double FUEL_THRESHOLD = 0.99;
+
+IMyGasTank tank1;
+IMyGasTank tank2;
+IMyTimerBlock triggerBlock;
+IMyTextSurface display;
+IMyTextSurface display2;
+
+void CheckFuelLevels()
+{
+    if (tank1 == null || tank2 == null || triggerBlock == null || display == null || display2 == null)
+    {
+        Echo("ERROR: Required block not found.");
+
+        display.WriteText($"Fuel-1 Status\n", false);
+        display.WriteText($"==========\n", true);
+        display.WriteText($"Absent\n", true);
+        
+        display2.FontColor = Color.Red;
+        display2.WriteText($"Status:\n", false); 
+        display2.WriteText($"ABSENT\n", true);
+
+        return;
+    }
+
+    double tank1Level = tank1.FilledRatio;
+    double tank2Level = tank2.FilledRatio;
+
+    display.WriteText($"Fuel-1 Status\n", false);
+    display.WriteText($"==========\n", true);
+    display.WriteText($"Tank 1: {tank1Level * 100:F2}%\n", true);
+    display.WriteText($"Tank 2: {tank2Level * 100:F2}%\n", true);
+
+    display2.FontColor = Color.Yellow;
+    display2.WriteText($"Status:\n", false);    
+    display2.WriteText($"REFUEL\n", true);
+
+    if (tank1Level > FUEL_THRESHOLD && tank2Level > FUEL_THRESHOLD)
+    {
+        display.WriteText("Fuel above 99%... launching\n", true);
+        triggerBlock.ApplyAction("Start"); 
+
+        display2.FontColor = Color.Green;
+        display2.WriteText($"Status:\n", false); 
+        display2.WriteText($"LAUNCH\n", true);
+    }
+}
+
+void Main()
+{
+    tank1 = GridTerminalSystem.GetBlockWithName("Fuel-1 Tank 1") as IMyGasTank;
+    tank2 = GridTerminalSystem.GetBlockWithName("Fuel-1 Tank 2") as IMyGasTank;
+    triggerBlock = GridTerminalSystem.GetBlockWithName("Fuel-1 Trigger") as IMyTimerBlock;
+    display = Me.GetSurface(0);
+    display2 = Me.GetSurface(1);
+
+    display.ContentType = ContentType.TEXT_AND_IMAGE;
+    display.FontSize = 2F;
+    display.FontColor = Color.White;
+    display.BackgroundColor = Color.Black;
+    display.Alignment = TextAlignment.CENTER;
+
+    display2.ContentType = ContentType.TEXT_AND_IMAGE;
+    display2.FontSize = 4F;
+    display2.FontColor = Color.Red;
+    display2.BackgroundColor = Color.Black;
+    display2.Alignment = TextAlignment.CENTER;
+
+    CheckFuelLevels();
+}
